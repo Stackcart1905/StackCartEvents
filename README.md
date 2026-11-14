@@ -19,6 +19,7 @@ contact details.
 
 - Node.js 20.19+ and npm
 - MongoDB (local or hosted)
+- Render (optional, for hosted deployment)
 
 ## Setup
 
@@ -26,14 +27,27 @@ contact details.
 
    ```sh
    npm install
-   npm install --prefix client
-   npm install --prefix server
    ```
 
 2. Copy `server/.env.example` to `server/.env` and set `MONGODB_URI`,
    `JWT_SECRET`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD`.
 3. Start MongoDB, then run `npm run dev` from the project root. The client
    starts at http://localhost:5173 and the API at http://localhost:5000.
+
+## Deploy to Render
+
+Deploy this repository as a **Web Service** with its root directory set to the
+repository root (leave Render's Root Directory blank). Use:
+
+- Build command: `npm ci --include=dev && npm run build --workspace client`
+- Start command: `npm start`
+- Health check path: `/api/health`
+
+Set `MONGODB_URI`, `JWT_SECRET`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD` in the
+Render service's environment settings. The server serves the built React app
+and API from the same origin; it uses Render's `RENDER_EXTERNAL_HOSTNAME` for
+same-origin CORS/CSRF checks when `CLIENT_ORIGIN` is not explicitly set. Do not
+add `.env` files to Git or enter real credentials in a checked-in template.
 
 The configured admin account is created or refreshed when the server starts.
 Use its configured email and password to sign in; public registration always
