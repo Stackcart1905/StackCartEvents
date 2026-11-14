@@ -37,9 +37,12 @@ type Applicant = {
   appliedAt: string
   answers: ApplicationAnswer[]
 }
+const apiBaseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '')
+const apiUrl = (path: string) => `${apiBaseUrl}${path}`
+
 const api = async <T,>(path: string, options: RequestInit = {}): Promise<T> => {
   const isForm = options.body instanceof FormData
-  const response = await fetch(`/api${path}`, {
+  const response = await fetch(apiUrl(`/api${path}`), {
     credentials: 'include',
     ...options,
     headers: {
@@ -405,7 +408,7 @@ function App() {
                   <div className="admin-event-list">
                     {events.map((event) => (
                       <article className="admin-event-row" key={event._id}>
-                        <img src={event.thumbnail} alt="" />
+                        <img src={apiUrl(event.thumbnail)} alt="" />
                         <div className="admin-event-info"><h3>{event.title}</h3><p>{event.participantCount} applicants · Deadline {dateLabel(event.deadline)}</p></div>
                         <div className="row-actions">
                           <button className="icon-button" title="View participants" onClick={() => void openRoster(event)}>People</button>
@@ -438,7 +441,7 @@ function App() {
                               <div key={answer.fieldId}><dt>{answer.label}</dt><dd>
                                 {answer.value === null ? '—' :
                                   typeof answer.value === 'object' && !Array.isArray(answer.value) && 'url' in answer.value
-                                    ? <a href={answer.value.url} target="_blank" rel="noreferrer">View {answer.value.originalName}</a>
+                                    ? <a href={apiUrl(answer.value.url)} target="_blank" rel="noreferrer">View {answer.value.originalName}</a>
                                     : Array.isArray(answer.value) ? answer.value.join(', ') : String(answer.value)}
                               </dd></div>
                             ))}
@@ -487,7 +490,7 @@ function App() {
                     return (
                       <article className="event-card" key={event._id}>
                         <div className="event-image-wrap">
-                          <img className="event-image" src={event.thumbnail} alt="" />
+                          <img className="event-image" src={apiUrl(event.thumbnail)} alt="" />
                           <span className={isOpen ? 'event-status' : 'event-status closed'}>{isOpen ? 'APPLICATIONS OPEN' : 'APPLICATIONS CLOSED'}</span>
                           <span className="event-index">{String(index + 1).padStart(2, '0')}</span>
                         </div>

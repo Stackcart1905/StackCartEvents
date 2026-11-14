@@ -37,17 +37,32 @@ contact details.
 ## Deploy to Render
 
 Deploy this repository as a **Web Service** with its root directory set to the
-repository root (leave Render's Root Directory blank). Use:
+repository root (`.`; leave Render's Root Directory blank in the dashboard).
+Use:
 
 - Build command: `npm ci --include=dev && npm run build --workspace client`
 - Start command: `npm start`
 - Health check path: `/api/health`
 
+If updating an existing Render service, manually change its **Root Directory**
+to blank / repository root, its **Build Command** to the command above, and its
+**Start Command** to `npm start`. The deployment log must show the
+`stackcart-events` root package and start the Express server, not just list
+the Vite client scripts. Alternatively, sync the `render.yaml` Blueprint.
+
+For the Vercel frontend, set `VITE_API_URL` in the Vercel project's production
+environment to the public Render service URL (for example,
+`https://stackcart-events.onrender.com`) and redeploy Vercel so its client
+build sends API and upload requests to Render. The server allows
+`https://stack-cart-events.vercel.app` and supports additional comma-separated
+origins via `CORS_ORIGINS`. Since Vercel and Render are different sites,
+production auth cookies use `SameSite=None; Secure`; some browsers may block
+third-party cookies, so a shared custom domain/reverse proxy is preferable if
+that policy affects sign-in.
+
 Set `MONGODB_URI`, `JWT_SECRET`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD` in the
-Render service's environment settings. The server serves the built React app
-and API from the same origin; it uses Render's `RENDER_EXTERNAL_HOSTNAME` for
-same-origin CORS/CSRF checks when `CLIENT_ORIGIN` is not explicitly set. Do not
-add `.env` files to Git or enter real credentials in a checked-in template.
+Render service's environment settings. Do not add `.env` files to Git or enter
+real credentials in a checked-in template.
 
 The configured admin account is created or refreshed when the server starts.
 Use its configured email and password to sign in; public registration always

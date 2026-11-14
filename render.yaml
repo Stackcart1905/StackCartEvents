@@ -2,6 +2,7 @@ services:
   - type: web
     name: stackcart-events
     runtime: node
+    rootDir: .
     buildCommand: npm ci --include=dev && npm run build --workspace client
     startCommand: npm start
     healthCheckPath: /api/health
@@ -16,3 +17,5 @@ services:
         sync: false
       - key: ADMIN_PASSWORD
         sync: false
+      - key: CORS_ORIGINS
+        value: https://stack-cart-events.vercel.app

@@ -33,16 +33,24 @@ const port = Number(process.env.PORT || 5000)
 const directory = path.dirname(fileURLToPath(import.meta.url))
 const uploadDirectory = path.join(directory, 'uploads')
 const clientBuildDirectory = path.resolve(directory, '../client/dist')
-const clientOrigin = process.env.CLIENT_ORIGIN ||
-  (process.env.RENDER_EXTERNAL_HOSTNAME
-    ? `https://${process.env.RENDER_EXTERNAL_HOSTNAME}`
-    : 'http://localhost:5173')
+const allowedOrigins = new Set([
+  'https://stack-cart-events.vercel.app',
+  'http://localhost:5173',
+  ...(process.env.CLIENT_ORIGIN ? [process.env.CLIENT_ORIGIN] : []),
+  ...(process.env.CORS_ORIGINS || '').split(',').map((origin) => origin.trim()).filter(Boolean),
+  ...(process.env.RENDER_EXTERNAL_HOSTNAME
+    ? [`https://${process.env.RENDER_EXTERNAL_HOSTNAME}`]
+    : []),
+])
 
 app.disable('x-powered-by')
 app.set('trust proxy', 1)
 app.use(helmet())
 app.use(cors({
-  origin: clientOrigin,
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.has(origin)) return callback(null, true)
+    return callback(null, false)
+  },
   credentials: true,
 }))
 app.use(express.json({ limit: '1mb' }))
@@ -50,7 +58,7 @@ app.use(cookieParser())
 app.use('/api', (request, response, next) => {
   if (['GET', 'HEAD', 'OPTIONS'].includes(request.method)) return next()
   const origin = request.get('origin')
-  if (origin && origin !== clientOrigin) {
+  if (origin && !allowedOrigins.has(origin)) {
     return response.status(403).json({ message: 'Requests from this origin are not allowed.' })
   }
   return next()
