@@ -37,7 +37,10 @@ type Applicant = {
   appliedAt: string
   answers: ApplicationAnswer[]
 }
-const apiBaseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '')
+const apiBaseUrl = (
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.PROD ? 'https://stackcartevents.onrender.com' : '')
+).replace(/\/+$/, '')
 const apiUrl = (path: string) => `${apiBaseUrl}${path}`
 
 const api = async <T,>(path: string, options: RequestInit = {}): Promise<T> => {
