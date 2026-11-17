@@ -2,7 +2,7 @@ import { Router } from 'express'
 import rateLimit from 'express-rate-limit'
 import jwt from 'jsonwebtoken'
 import User from '../models/User.js'
-import { requireAuth } from '../middleware/auth.js'
+import { optionalAuth } from '../middleware/auth.js'
 
 const router = Router()
 const authLimiter = rateLimit({
@@ -76,7 +76,8 @@ router.post('/logout', (_request, response) => {
   return response.json({ message: 'Signed out.' })
 })
 
-router.get('/me', requireAuth, (request, response) => {
+router.get('/me', optionalAuth, (request, response) => {
+  if (!request.user) return response.json({ user: null })
   const { _id, name, email, role } = request.user
   return response.json({ user: { id: _id, name, email, role } })
 })

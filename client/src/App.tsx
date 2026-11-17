@@ -100,7 +100,7 @@ function App() {
 
   useEffect(() => {
     Promise.all([
-      api<{ user: User }>('/auth/me').then(({ user: current }) => setUser(current)).catch(() => {}),
+      api<{ user: User | null }>('/auth/me').then(({ user: current }) => setUser(current)).catch(() => {}),
       loadEvents(),
     ])
       .catch((error: Error) => setNotice(error.message))

@@ -63,7 +63,10 @@ app.use('/api', (request, response, next) => {
   }
   return next()
 })
-app.use('/uploads', express.static(uploadDirectory, { fallthrough: false }))
+app.use('/uploads', (_request, response, next) => {
+  response.setHeader('Cross-Origin-Resource-Policy', 'cross-origin')
+  return next()
+}, express.static(uploadDirectory, { fallthrough: false }))
 app.use('/api/auth', authRoutes)
 app.use('/api/events', eventRoutes)
 app.get('/api/health', (_request, response) => response.json({ status: 'ok' }))
